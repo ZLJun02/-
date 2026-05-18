@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>古建数据贡献平台 — Ancient Architecture Knowledge Base</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#f4f1ea;color:#3e2c1c;min-height:100vh}
+:root{--primary:#8b5e3c;--primary-light:#c9a87c;--accent:#b22222;--bg:#f4f1ea;--card:#fffef9;--border:#d4c5a9;--text:#3e2c1c;--muted:#7a6a5c}
+
+/* ── Header ── */
+header{background:linear-gradient(135deg,#3e2c1c 0%,#5c3d2e 50%,#3e2c1c 100%);color:#f4e5c8;padding:0 24px;display:flex;align-items:center;height:64px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.3)}
+header .logo{font-size:20px;font-weight:bold;display:flex;align-items:center;gap:10px;white-space:nowrap}
+header .logo span{font-size:28px}
+nav{display:flex;margin-left:40px;gap:4px}
+nav a{padding:8px 18px;color:#d4c5a9;text-decoration:none;border-radius:6px;font-size:15px;transition:.2s;cursor:pointer}
+nav a:hover,nav a.active{background:rgba(255,255,255,.12);color:#f4e5c8}
+
+/* ── Main ── */
+main{max-width:1320px;margin:0 auto;padding:24px 20px 60px}
+.section{display:none}
+.section.active{display:block}
+
+/* ── Search Bar ── */
+.search-bar{display:flex;gap:12px;margin-bottom:28px;flex-wrap:wrap}
+.search-bar input{flex:1;min-width:240px;padding:12px 18px;border:2px solid var(--border);border-radius:8px;font-size:16px;background:var(--card);outline:none;transition:.2s}
+.search-bar input:focus{border-color:var(--primary)}
+.search-bar select,.search-bar button{padding:12px 18px;border:2px solid var(--border);border-radius:8px;font-size:15px;background:var(--card);cursor:pointer;outline:none}
+.search-bar button{background:var(--primary);color:#fff;border-color:var(--primary);font-weight:bold;min-width:80px}
+.search-bar button:hover{background:#6b4423}
+
+/* ── Cards Grid ── */
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:18px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:20px;transition:.2s;cursor:pointer}
+.card:hover{box-shadow:0 4px 16px rgba(0,0,0,.1);border-color:var(--primary-light)}
+.card h3{font-size:17px;color:var(--text);margin-bottom:8px}
+.card .meta{font-size:13px;color:var(--muted);display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px}
+.card .meta span{background:#f0ebe0;padding:2px 8px;border-radius:4px}
+.card .desc{font-size:14px;color:var(--muted);line-height:1.5;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.card .file-tag{display:inline-block;margin-top:6px;font-size:12px;padding:3px 8px;border-radius:4px;background:#e8dcc8;color:var(--primary)}
+
+/* ── Stats ── */
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;margin-bottom:28px}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:20px;text-align:center}
+.stat-card .num{font-size:36px;font-weight:bold;color:var(--primary)}
+.stat-card .label{font-size:14px;color:var(--muted);margin-top:4px}
+
+/* ── Component Table ── */
+.comp-table{width:100%;border-collapse:collapse;font-size:14px;background:var(--card);border-radius:8px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.comp-table th{background:var(--primary);color:#f4e5c8;padding:12px 10px;text-align:left;font-weight:500}
+.comp-table td{padding:10px;border-bottom:1px solid var(--border)}
+.comp-table tr:hover{background:#faf6ed}
+
+/* ── Model Viewer Area ── */
+.viewer-container{width:100%;height:400px;background:#1a1a2e;border-radius:8px;position:relative;overflow:hidden;margin-bottom:16px}
+.viewer-container canvas{display:block}
+
+/* ── Detail Page ── */
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.detail-full{grid-column:1/-1}
+.detail-img{width:100%;max-height:400px;object-fit:contain;background:#f0ebe0;border-radius:8px}
+.views-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.views-row .view-card{background:var(--card);border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.views-row .view-card img{width:100%;height:180px;object-fit:cover}
+.views-row .view-card .cap{font-size:13px;padding:8px;text-align:center;color:var(--muted)}
+
+/* ── Upload Form ── */
+.form-panel{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:24px;max-width:800px;margin:0 auto}
+.form-group{margin-bottom:16px}
+.form-group label{display:block;font-weight:bold;margin-bottom:6px;color:var(--text);font-size:14px}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:10px 14px;border:2px solid var(--border);border-radius:6px;font-size:14px;background:#fffef9;outline:none}
+.form-group textarea{min-height:100px;resize:vertical}
+.form-group input:focus,.form-group textarea:focus{border-color:var(--primary)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.form-actions{display:flex;gap:12px;margin-top:20px}
+.btn{padding:10px 24px;border:none;border-radius:6px;font-size:15px;cursor:pointer;font-weight:bold;transition:.2s}
+.btn-primary{background:var(--primary);color:#fff}
+.btn-primary:hover{background:#6b4423}
+.btn-cancel{background:#ccc;color:#333}
+.btn-cancel:hover{background:#b0b0b0}
+.btn-accent{background:var(--accent);color:#fff}
+.btn-accent:hover{background:#8b1a1a}
+.btn-sm{padding:6px 14px;font-size:13px}
+
+/* ── Modal ── */
+.modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.6);z-index:200;align-items:center;justify-content:center}
+.modal-overlay.show{display:flex}
+.modal{background:var(--card);border-radius:12px;width:90%;max-width:900px;max-height:85vh;overflow-y:auto;padding:24px}
+.modal-close{float:right;font-size:24px;cursor:pointer;color:var(--muted);line-height:1}
+.modal-close:hover{color:var(--text)}
+
+/* ── Pagination ── */
+.pagination{display:flex;justify-content:center;gap:8px;margin-top:24px}
+.pagination button{padding:8px 16px;border:1px solid var(--border);border-radius:6px;background:var(--card);cursor:pointer;font-size:14px}
+.pagination button:disabled{opacity:.5;cursor:default}
+.pagination button.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+
+/* ── Badges ── */
+.badge{display:inline-block;padding:2px 10px;border-radius:12px;font-size:12px;font-weight:bold}
+.badge-tang{background:#fce4d6;color:#c55a11}
+.badge-liao{background:#d6e4f0;color:#2e75b6}
+.badge-song{background:#e2efda;color:#548235}
+.badge-ming{background:#f2dcdb;color:#c00000}
+.badge-qing{background:#ddd9c4;color:#806000}
+
+/* ── 3D Controls ── */
+.viewer-toolbar{display:flex;gap:8px;padding:8px;background:#2a2a3e;border-radius:0 0 8px 8px;flex-wrap:wrap}
+.viewer-toolbar button{padding:6px 12px;border:1px solid #5a5a7c;border-radius:4px;background:#3a3a5c;color:#eee;cursor:pointer;font-size:12px}
+.viewer-toolbar button:hover{background:#5a5a7c;border-color:#f0a500}
+
+/* ── Responsive ── */
+@media(max-width:768px){
+  header{flex-wrap:wrap;height:auto;padding:12px}
+  nav{margin-left:0;margin-top:8px;overflow-x:auto;width:100%}
+  .detail-grid{grid-template-columns:1fr}
+  .form-row{grid-template-columns:1fr}
+  .search-bar{flex-direction:column}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo"><span>🏛️</span>古建数据贡献平台</div>
+  <nav id="main-nav">
+    <a data-section="home" class="active">首页</a>
+    <a data-section="papers">文献库</a>
+    <a data-section="components">构件库</a>
+    <a data-section="models">模型库</a>
+    <a data-section="images">图片库</a>
+    <a data-section="contribute">📤 贡献</a>
+  </nav>
+</header>
+
+<main>
+  <!-- ═══ 首页 ═══ -->
+  <section id="sec-home" class="section active">
+    <div class="search-bar">
+      <input type="text" id="home-search" placeholder="🔍 搜索古建文献、构件参数、3D模型、图片...">
+      <select id="home-search-type"><option value="">全部类型</option><option value="papers">文献</option><option value="components">构件</option><option value="models">3D模型</option><option value="images">图片</option></select>
+      <button onclick="app.search()">搜索</button>
+    </div>
+    <div class="stats-row" id="stats-row"></div>
+    <h3 style="margin-bottom:16px;color:var(--primary)">📌 最近贡献</h3>
+    <div class="cards-grid" id="home-recent"></div>
+  </section>
+
+  <!-- ═══ 文献库 ═══ -->
+  <section id="sec-papers" class="section">
+    <div class="search-bar">
+      <input type="text" id="paper-search" placeholder="搜索文献标题、作者、摘要...">
+      <select id="paper-dynasty"><option value="">全部朝代</option><option>唐代</option><option>宋代</option><option>辽代</option><option>金代</option><option>元代</option><option>明代</option><option>清代</option></select>
+      <button onclick="app.loadPapers()">搜索</button>
+    </div>
+    <div class="cards-grid" id="paper-list"></div>
+    <div class="pagination" id="paper-pager"></div>
+  </section>
+
+  <!-- ═══ 构件库 ═══ -->
+  <section id="sec-components" class="section">
+    <div class="search-bar">
+      <input type="text" id="comp-search" placeholder="搜索构件名称、描述...">
+      <select id="comp-category"><option value="">全部分类</option><option>斗拱</option><option>柱</option><option>梁枋</option><option>屋顶</option><option>台基</option></select>
+      <select id="comp-dynasty"><option value="">全部朝代</option><option>唐代</option><option>宋代</option><option>辽代</option><option>明代</option><option>清代</option></select>
+      <button onclick="app.loadComponents()">搜索</button>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="comp-table" id="comp-table">
+        <thead><tr><th>名称</th><th>分类</th><th>朝代</th><th>建筑</th><th>材(m)</th><th>分(m)</th><th>长</th><th>宽</th><th>高</th><th>径</th><th>单位</th><th>来源</th></tr></thead>
+        <tbody id="comp-tbody"></tbody>
+      </table>
+    </div>
+    <div class="pagination" id="comp-pager"></div>
+  </section>
+
+  <!-- ═══ 模型库 ═══ -->
+  <section id="sec-models" class="section">
+    <div class="search-bar">
+      <input type="text" id="model-search" placeholder="搜索模型名称...">
+      <select id="model-dynasty"><option value="">全部朝代</option><option>唐代</option><option>宋代</option><option>辽代</option><option>明代</option><option>清代</option></select>
+      <button onclick="app.loadModels()">搜索</button>
+    </div>
+    <div class="cards-grid" id="model-list"></div>
+    <div class="pagination" id="model-pager"></div>
+  </section>
+
+  <!-- ═══ 图片库 ═══ -->
+  <section id="sec-images" class="section">
+    <div class="search-bar">
+      <input type="text" id="img-search" placeholder="搜索图片标题...">
+      <select id="img-category"><option value="">全部分类</option><option>照片</option><option>图纸</option><option>拓片</option><option>测绘图</option></select>
+      <button onclick="app.loadImages()">搜索</button>
+    </div>
+    <div class="cards-grid" id="img-list"></div>
+    <div class="pagination" id="img-pager"></div>
+  </section>
+
+  <!-- ═══ 贡献页 ═══ -->
+  <section id="sec-contribute" class="section">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px">
+      <div class="card" onclick="app.showUploadForm('paper')" style="text-align:center;padding:32px 20px">
+        <div style="font-size:48px;margin-bottom:12px">📄</div>
+        <h3>上传文献/论文</h3>
+        <p class="desc">PDF、DOC 等格式的古建研究论文</p>
+      </div>
+      <div class="card" onclick="app.showUploadForm('component')" style="text-align:center;padding:32px 20px">
+        <div style="font-size:48px;margin-bottom:12px">📐</div>
+        <h3>添加构件参数</h3>
+        <p class="desc">古建筑构件的材分、模数、尺寸数据</p>
+      </div>
+      <div class="card" onclick="app.showUploadForm('model')" style="text-align:center;padding:32px 20px">
+        <div style="font-size:48px;margin-bottom:12px">🧊</div>
+        <h3>上传3D / 参数化模型</h3>
+        <p class="desc">STL/OBJ/3DM/GH 格式，支持 Rhino &amp; Grasshopper</p>
+      </div>
+      <div class="card" onclick="app.showUploadForm('image')" style="text-align:center;padding:32px 20px">
+        <div style="font-size:48px;margin-bottom:12px">🖼️</div>
+        <h3>上传图片/照片</h3>
+        <p class="desc">建筑照片、测绘图、拓片等</p>
+      </div>
+    </div>
+    <div id="upload-form-container" style="margin-top:24px"></div>
+  </section>
+</main>
+
+<!-- ═══ Modal ═══ -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal" id="modal-content"></div>
+</div>
+
+<!-- ═══ Import Map ═══ -->
+<script type="importmap">
+{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.160.0/examples/jsm/"}}
+</script>
+<script type="module" src="js/app.js"></script>
+</body>
+</html>
