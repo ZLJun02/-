@@ -1,5 +1,5 @@
 # 古建数据贡献平台
-
+# 希望大家能贡献古建数据资料 用于复刻及建模
 **Ancient Architecture Knowledge Base** — 类似知网的古建筑专业知识共享平台
 
 ## 功能特色
